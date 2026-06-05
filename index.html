@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pig_avoV2 — คู่มือคำสั่ง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0b12; --bg2:#16121d; --card:#1c1726; --card2:#241d31;
+    --line:#332a45; --line2:#43385a;
+    --pink:#ff6ba6; --pink2:#ff9ec6; --cherry:#e6446e;
+    --gold:#ffcf5c; --aqua:#5fe3d0; --purple:#c08bff; --green:#7ee07e;
+    --txt:#ece6f5; --mut:#9a8fb0; --mut2:#6f6485;
+    --shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Kanit',system-ui,sans-serif;background:var(--bg);color:var(--txt);
+    line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  code,.mono{font-family:'JetBrains Mono',monospace}
+
+  /* ── animated backdrop ── */
+  .glow{position:fixed;inset:0;z-index:-1;overflow:hidden}
+  .glow::before,.glow::after{
+    content:"";position:absolute;width:55vw;height:55vw;border-radius:50%;
+    filter:blur(120px);opacity:.32;animation:float 18s ease-in-out infinite;
+  }
+  .glow::before{background:var(--cherry);top:-15%;left:-10%}
+  .glow::after{background:var(--purple);bottom:-20%;right:-12%;animation-delay:-9s}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(4vw,5vh) scale(1.15)}}
+
+  /* ── layout ── */
+  .wrap{display:grid;grid-template-columns:262px 1fr;max-width:1280px;margin:0 auto;gap:34px;padding:0 26px}
+  @media(max-width:860px){.wrap{grid-template-columns:1fr}.side{display:none}}
+
+  /* ── header ── */
+  header{text-align:center;padding:62px 20px 30px}
+  .badge{display:inline-block;font-size:.74rem;letter-spacing:3px;text-transform:uppercase;
+    color:var(--pink2);border:1px solid var(--line2);padding:6px 16px;border-radius:30px;margin-bottom:20px;
+    background:rgba(255,107,166,.07)}
+  h1{font-size:clamp(2.1rem,5vw,3.4rem);font-weight:700;line-height:1.15;
+    background:linear-gradient(100deg,#fff 10%,var(--pink) 50%,var(--gold) 95%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--mut);max-width:620px;margin:14px auto 0;font-weight:300}
+  .pig{font-size:3.4rem;display:block;margin-bottom:6px;animation:bob 3s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-9px) rotate(-4deg)}}
+
+  /* ── search ── */
+  .search-wrap{max-width:540px;margin:30px auto 0;position:relative}
+  #search{width:100%;padding:15px 20px 15px 50px;border-radius:14px;border:1px solid var(--line2);
+    background:var(--card);color:var(--txt);font-family:'Kanit';font-size:1rem;outline:none;transition:.2s}
+  #search:focus{border-color:var(--pink);box-shadow:0 0 0 4px rgba(255,107,166,.13)}
+  .search-wrap svg{position:absolute;left:18px;top:16px;width:20px;height:20px;stroke:var(--mut);pointer-events:none}
+  /* autocomplete dropdown */
+  .ac{position:absolute;left:0;right:0;top:calc(100% + 8px);background:var(--card);
+    border:1px solid var(--line2);border-radius:13px;overflow:hidden;z-index:30;
+    box-shadow:var(--shadow);display:none;padding:5px}
+  .ac.show{display:block}
+  .ac li{list-style:none;padding:9px 13px;cursor:pointer;display:flex;gap:11px;align-items:center;
+    font-size:.88rem;color:var(--mut);border-radius:9px;transition:.1s}
+  .ac li .s{font-family:'JetBrains Mono';color:var(--txt);font-size:.84rem}
+  .ac li .ico{font-size:1rem}
+  .ac li .t{color:var(--mut);font-weight:300}
+  .ac li kbd{margin-left:auto;font-family:'JetBrains Mono';font-size:.68rem;background:var(--bg);
+    border:1px solid var(--line2);border-radius:5px;padding:2px 7px;color:var(--mut2);opacity:0}
+  .ac li.active,.ac li:hover{background:var(--card2);color:var(--txt)}
+  .ac li.active kbd{opacity:1;color:var(--pink2);border-color:var(--pink)}
+  mark{background:rgba(255,207,92,.25);color:var(--gold);border-radius:3px;padding:0 1px}
+
+  /* ── sidebar ── */
+  .side{position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow-y:auto;padding:8px 0}
+  .side h4{font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--mut2);margin:18px 12px 8px}
+  .side a{display:flex;align-items:center;gap:9px;padding:8px 13px;border-radius:9px;color:var(--mut);
+    text-decoration:none;font-size:.92rem;font-weight:300;transition:.15s;border-left:2px solid transparent}
+  .side a:hover{color:var(--txt);background:var(--card)}
+  .side a.active{color:var(--pink2);background:linear-gradient(90deg,rgba(255,107,166,.12),transparent);
+    border-left-color:var(--pink)}
+  .side a .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.6}
+
+  /* ── sections ── */
+  main{padding-bottom:90px;min-width:0}
+  .sec{margin-top:46px;scroll-margin-top:24px}
+  .sec-h{display:flex;align-items:center;gap:13px;margin-bottom:8px}
+  .sec-h .ic{width:40px;height:40px;display:grid;place-items:center;border-radius:11px;font-size:1.3rem;
+    background:var(--card2);border:1px solid var(--line)}
+  .sec-h h2{font-size:1.5rem;font-weight:600}
+  .sec-desc{color:var(--mut);font-weight:300;margin-bottom:18px;font-size:.95rem}
+
+  /* ── command card ── */
+  .card{background:linear-gradient(160deg,var(--card),var(--bg2));border:1px solid var(--line);
+    border-radius:16px;padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow);
+    transition:.22s;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,var(--pink));
+    opacity:.8;transform:scaleY(.4);transform-origin:top;transition:.25s}
+  .card:hover{border-color:var(--line2);transform:translateY(-2px)}
+  .card:hover::before{transform:scaleY(1)}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .syntax{font-family:'JetBrains Mono';font-size:1.02rem;font-weight:600;color:#fff;word-break:break-word}
+  .syntax .arg{color:var(--gold)}
+  .syntax .opt{color:var(--aqua)}
+  .syntax .lit{color:var(--pink2)}
+  .copy{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;font-family:'Kanit';font-size:.78rem;
+    color:var(--mut);background:var(--card2);border:1px solid var(--line2);padding:6px 11px;border-radius:8px;
+    cursor:pointer;transition:.15s}
+  .copy:hover{color:var(--pink2);border-color:var(--pink)}
+  .copy.ok{color:var(--green);border-color:var(--green)}
+  .desc{color:var(--txt);font-weight:300;margin:12px 0 0;font-size:.96rem}
+  .params{margin-top:13px;display:flex;flex-direction:column;gap:7px}
+  .param{display:flex;gap:10px;font-size:.88rem;align-items:baseline}
+  .param .k{font-family:'JetBrains Mono';color:var(--gold);font-weight:600;flex-shrink:0;min-width:72px}
+  .param .v{color:var(--mut)}
+  .ex{margin-top:13px;display:flex;flex-wrap:wrap;gap:8px}
+  .ex .chip{font-family:'JetBrains Mono';font-size:.82rem;color:var(--aqua);background:rgba(95,227,208,.08);
+    border:1px solid rgba(95,227,208,.22);padding:5px 11px;border-radius:8px;cursor:pointer;transition:.15s}
+  .ex .chip:hover{background:rgba(95,227,208,.18)}
+  .note{margin-top:13px;padding:10px 14px;border-radius:10px;background:rgba(255,207,92,.07);
+    border:1px solid rgba(255,207,92,.2);font-size:.86rem;color:var(--gold);font-weight:300}
+  .note b{font-weight:600}
+  .tags{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+  .tag{font-size:.72rem;color:var(--mut);background:var(--card2);border:1px solid var(--line);
+    padding:3px 9px;border-radius:20px}
+
+  .empty{text-align:center;color:var(--mut2);padding:60px 0;font-weight:300;display:none}
+  footer{text-align:center;color:var(--mut2);font-size:.82rem;padding:40px 20px 60px;font-weight:300}
+  footer b{color:var(--pink2)}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <span class="pig">🐷</span>
+  <span class="badge">Pig Catch Minigame</span>
+  <h1>Pig_avoV2 — คู่มือคำสั่ง</h1>
+  <p class="sub">รวมทุกคำสั่ง <code>/avop</code> + กลไกในเกม — กดที่ตัวอย่างเพื่อก๊อปคำสั่งได้เลย</p>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="search" placeholder="ค้นหาคำสั่ง เช่น zombie, strength, cap…  (กด Tab เติม)" autocomplete="off">
+    <ul class="ac" id="ac"></ul>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside class="side" id="sidebar"></aside>
+  <main id="main">
+    <div class="empty" id="empty">🔍 ไม่เจอคำสั่งที่ค้นหา</div>
+  </main>
+</div>
+
+<footer>
+  สร้างด้วย <b>♥</b> สำหรับเซิร์ฟเวอร์จับหมู · <b>Pig_avoV2</b> · เปิดไฟล์นี้ในเบราว์เซอร์ได้เลย
+</footer>
+
+<script>
+// ─── command data ────────────────────────────────────────────────────────────
+const DATA = [
+  { id:"goal", icon:"🎯", name:"เป้าหมาย & เกม", accent:"var(--pink)",
+    desc:"ตั้งจำนวนหมูที่ต้องฝากเพื่อชนะ และดูสถานะคอก",
+    cmds:[
+      { s:"/avop setpig <n>", t:"ตั้งเป้าหมูที่ต้องฝากเพื่อชนะ", d:"กำหนดจำนวนหมูเป้าหมาย อัปเดตสกอร์บอร์ด + ปรับขนาดรั้ว (radius) + ตำแหน่งโมเดลทันที",
+        p:[["<n>","จำนวนหมูเป้าหมาย (≥1)"]], ex:["/avop setpig 100","/avop setpig 500"] },
+      { s:"/avop add [n]", t:"เพิ่มเป้าชั่วคราว", d:"บวกเป้า +n แบบชั่วคราว เด้งกลับค่าเดิมเมื่อชนะรอบ มีเสียง exp orb",
+        p:[["[n]","จำนวนที่เพิ่ม (ไม่ใส่=1)"]], ex:["/avop add 50"] },
+      { s:"/avop info [all|pigodance]", t:"ดูสถานะคอก", d:"แสดงจำนวนหมูที่มี / เป้า / radius",
+        p:[["all","แยกตามชนิด (ปกติ/เล็ก/ใหญ่/เต้น/บิน)"],["pigodance","นับเฉพาะหมูเต้น"]], ex:["/avop info","/avop info all"] },
+      { s:"/avop time <secs>", t:"ตั้งเวลานับถอยหลังตอนชนะ", d:"กำหนดวินาที countdown ก่อนประกาศชนะ",
+        p:[["<secs>","วินาที (≥1)"]], ex:["/avop time 15"] },
+      { s:"/avop cap <n>", t:"จำกัดหมูเกิดพร้อมกัน", d:"ตั้งเพดานหมูมีชีวิตพร้อมกัน (ทุกชนิดรวม) 0 = auto ตามเป้า · ค่าอยู่รอด reset",
+        p:[["<n>","0–1000 · 0 = auto (capFor)"]], ex:["/avop cap 300","/avop cap 0"],
+        note:"auto: <b>min(400, 50 + เป้า/2)</b> — ตั้งเองทะลุ 400 ได้ถ้าเซิร์ฟแรง" },
+    ]},
+
+  { id:"buff", icon:"💪", name:"บั๊ฟผู้เล่น", accent:"var(--purple)",
+    desc:"บั๊ฟที่ใช้กับผู้เล่นทุกคนพร้อมกัน (global)",
+    cmds:[
+      { s:"/avop strength <level> [secs]", t:"บั๊ฟพลังยกหมู (คิวรวมทุกคน)", d:"เพิ่มจำนวนหมูที่ยกพร้อมกันได้ = level · เป็นคิวเรียงจาก level สูงสุด",
+        p:[["<level>","จำนวนหมูที่ยกได้"],["[secs]","วินาที · 0 = ถาวร (∞)"]], ex:["/avop strength 3 30","/avop strength 40 0"],
+        note:"level เท่ากัน = <b>บวกเวลา</b> · level สูงกว่า = <b>แทรกก่อน</b> (ตัวเก่ารอ) · ฟีดแบ็กเป็นเสียง+actionbar ไม่มีข้อความแชต" },
+      { s:"/avop fly [secs]", t:"ให้บินทุกคน", d:"เปิดบินให้ผู้เล่นทุกคน +secs",
+        p:[["[secs]","วินาที (ไม่ใส่/0 = 10)"]], ex:["/avop fly 20"] },
+      { s:"/avop down", t:"ปลดหมูที่ถืออยู่ลงพื้น", d:"วางหมู/สัตว์ที่ทุกคนถืออยู่ลงคอก กระจายไม่ทับกัน",
+        p:[], ex:["/avop down"] },
+    ]},
+
+  { id:"spawn", icon:"🐖", name:"เสกหมู & มอนสเตอร์", accent:"var(--gold)",
+    desc:"เสกหมูชนิดต่างๆ และมอบที่ช่วย/ขัดขวางผู้เล่น",
+    cmds:[
+      { s:"/avop spawn pigfly [n]", t:"หมูบิน (allay)", d:"เสกหมูบิน n ตัว + เพิ่มเป้า",
+        p:[["[n]","จำนวน (ไม่ใส่=1)"]], ex:["/avop spawn pigfly 5"] },
+      { s:"/avop spawn smallpig [n]", t:"หมูเล็ก", d:"หมู scale 0.5 วิ่งเร็วกว่า ค่อยๆเกิด",
+        p:[["[n]","จำนวน"]], ex:["/avop spawn smallpig 10"] },
+      { s:"/avop spawn bigpig [n]", t:"หมูใหญ่", d:"หมู scale 5 ตัวใหญ่ ยกแล้วคลิกซ้าย = ดรอป (ไม่โยน)",
+        p:[["[n]","จำนวน"]], ex:["/avop spawn bigpig 3"] },
+      { s:"/avop spawn iron_golem [count] [pigsEach]", t:"โกเลมเก็บหมู", d:"โกเลมเดินจับหมูไปฝากกลางคอกให้อัตโนมัติ",
+        p:[["[count]","จำนวนโกเลม"],["[pigsEach]","หมูต่อตัว (1–100, ดีฟอลต์ 5)"]], ex:["/avop spawn iron_golem 2 5"] },
+      { s:"/avop spawn carrot [n]", t:"แครอทดูดหมู", d:"วางแครอทดูดหมู n ตัวเข้าฝาก",
+        p:[["[n]","จำนวนหมูที่ดูด"]], ex:["/avop spawn carrot 50"] },
+      { s:"/avop spawn netherdoor [count] [pigCount]", t:"ประตูเนเธอร์", d:"ประตูเนเธอร์พ่นหมูออกมาเป็นชุด",
+        p:[["[count]","จำนวนประตู"],["[pigCount]","หมูต่อประตู (ดีฟอลต์ 5)"]], ex:["/avop spawn netherdoor 1 5"] },
+      { s:"/avop spawn zombie <count> [rounds]", t:"ซอมบี้ยักษ์ขว้างดิน", d:"Husk ยักษ์เกิดในคอก ขว้างก้อนดินใส่คนใกล้สุด · เล่นอนิเมชั่น spawn → idle2 → attack2 · ดินตกพื้นระเบิดดินกระเด็น (พื้นไม่พัง) ทำดาเมจ AoE",
+        p:[["<count>","จำนวนซอมบี้"],["[rounds]","จำนวนรอบขว้าง · รอ 10 วิ/รอบ (ดีฟอลต์ 1)"]], ex:["/avop spawn zombie 1","/avop spawn zombie 1 2"],
+        note:"HP 50 <b>ตีได้</b> ตายก่อนจบรอบ → เล่น death · ดินไม่ล็อกเป้า (เดินหนีรอด) · AoE รัศมี <b>12</b> กลาง <b>20</b> ดาเมจ ออกห่างเบาเร็ว" },
+    ]},
+
+  { id:"special", icon:"💥", name:"พิเศษ & เอฟเฟกต์", accent:"var(--cherry)",
+    desc:"คำสั่งจัดการหมูแบบพิเศษ",
+    cmds:[
+      { s:"/avop remove [n]", t:"ระเบิด TNT บนหมู", d:"วาง TNT บนหมูสุ่ม n ตัว ฟิวส์ 1 วิ → หมูหาย + นับเป็นฝาก · ไม่ทำลายบล็อกหรือเอนทิตีอื่น",
+        p:[["[n]","จำนวนหมู (ไม่ใส่=1)"]], ex:["/avop remove 10"],
+        note:"คิวได้ — ใส่ซ้ำได้ ระบบทยอยระเบิด · reset จะยกเลิก TNT ที่ค้างทั้งหมด" },
+    ]},
+
+  { id:"admin", icon:"⚙️", name:"ระบบ", accent:"var(--aqua)",
+    desc:"จัดการเกมและ config",
+    cmds:[
+      { s:"/avop reset", t:"รีเซ็ตเกม", d:"ล้างแต้ม + หมูทั้งหมด + ยกเลิก golem/zombie/TNT/carrot ที่ค้าง แล้วเริ่มใหม่",
+        p:[], ex:["/avop reset"] },
+      { s:"/avop save", t:"เซฟ config", d:"บันทึก config.yml ทันที (ปกติ auto-save ทุก 5 นาที)",
+        p:[], ex:["/avop save"] },
+    ]},
+
+  { id:"play", icon:"🎮", name:"กลไกผู้เล่น (ไม่ใช่คำสั่ง)", accent:"var(--green)",
+    desc:"วิธีเล่นพื้นฐาน — บอกผู้เล่นใหม่",
+    cmds:[
+      { s:"คลิกขวา ที่หมู", t:"ยกหมู", d:"คลิกขวาหมูในคอก → หมูขึ้นขี่หลัง (ต่อกันเป็นชั้น) · ยกได้ตามลิมิต strength (ดีฟอลต์ 1)",
+        p:[], ex:[] },
+      { s:"คลิกซ้าย", t:"โยนหมู", d:"คลิกซ้ายขณะถือหมู → โยนหมูตัวบนสุดเป็นเส้นโค้งไปข้างหน้า · ตกในเขตจับ/รอบๆ = ฝากอัตโนมัติ",
+        p:[], ex:[], note:"คลิกซ้ายแกว่งแขนยิงได้ทุกกรณี แม้เล็งโดน entity/hitbox" },
+      { s:"ยืนในเขต Launcher", t:"เขตขว้างหมู", d:"ยืนในโซนขว้าง (x −13..−7, z −21..−15) ขณะถือหมู → ขว้างหมูเข้ากลางคอกอัตโนมัติทีละตัว (~10/วิ)",
+        p:[], ex:[] },
+      { s:"เดินเข้ากลางคอก", t:"ฝากหมู", d:"พาหมูเดินเข้าใกล้กลางคอก ≤ 3.5 บล็อก → ฝากอัตโนมัติ + ขึ้นสกอร์",
+        p:[], ex:[] },
+      { s:"ดับเบิลคลิกขวา (ช่อง 9)", t:"ไอเท่ม RESET", d:"ไอเท่ม RESIN_BRICK ชื่อ RESET ล็อกช่อง 9 · ดับเบิลคลิกขวาภายใน 1 วิ = รีเซ็ตเกม",
+        p:[], ex:[] },
+    ]},
+];
+
+// ─── render ───────────────────────────────────────────────────────────────────
+const main = document.getElementById('main');
+const sidebar = document.getElementById('sidebar');
+const empty = document.getElementById('empty');
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtSyntax(s){
+  let h = esc(s);                                                        // 1. escape first
+  h = h.replace(/&lt;([^&]+?)&gt;/g,'<span class="arg">&lt;$1&gt;</span>'); // 2. <required>
+  h = h.replace(/\[([^\]]+)\]/g,'<span class="opt">[$1]</span>');         // 3. [optional]
+  h = h.replace(/(\/avop|\/a)\b/g,'<span class="lit">$1</span>');         // 4. command literal (last)
+  return h;
+}
+
+DATA.forEach(cat=>{
+  // sidebar
+  const h4 = document.createElement('h4'); h4.textContent = cat.name; sidebar.appendChild(h4);
+  const a = document.createElement('a'); a.href='#'+cat.id; a.dataset.target=cat.id;
+  a.innerHTML = `<span class="dot"></span>${cat.icon} ${cat.name}`; sidebar.appendChild(a);
+
+  // section
+  const sec = document.createElement('section'); sec.className='sec'; sec.id=cat.id;
+  sec.innerHTML = `<div class="sec-h"><span class="ic">${cat.icon}</span><h2>${cat.name}</h2></div>
+    <p class="sec-desc">${cat.desc}</p>`;
+  cat.cmds.forEach(c=>{
+    const card = document.createElement('article');
+    card.className='card'; card.style.setProperty('--accent',cat.accent);
+    const haystack = (c.s+' '+c.t+' '+c.d).toLowerCase();
+    card.dataset.search = haystack;
+    let html = `<div class="card-top">
+        <div class="syntax">${fmtSyntax(c.s)}</div>
+        ${c.s.startsWith('/')?`<button class="copy" data-cmd="${c.s.replace(/"/g,'&quot;')}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอก</button>`:''}
+      </div>
+      <p class="desc"><b style="color:var(--pink2);font-weight:500">${c.t}</b> — ${c.d}</p>`;
+    if(c.p && c.p.length){
+      html += `<div class="params">`+c.p.map(p=>`<div class="param"><span class="k">${p[0]}</span><span class="v">${p[1]}</span></div>`).join('')+`</div>`;
+    }
+    if(c.ex && c.ex.length){
+      html += `<div class="ex">`+c.ex.map(e=>`<span class="chip" data-cmd="${e.replace(/"/g,'&quot;')}">${e}</span>`).join('')+`</div>`;
+    }
+    if(c.note){ html += `<div class="note">💡 ${c.note}</div>`; }
+    card.innerHTML = html;
+    sec.appendChild(card);
+  });
+  main.appendChild(sec);
+});
+
+// ─── copy to clipboard ─────────────────────────────────────────────────────────
+function copyCmd(text, el){
+  navigator.clipboard?.writeText(text).then(()=>{
+    const old = el.innerHTML;
+    if(el.classList.contains('copy')){ el.classList.add('ok'); el.textContent='✓ คัดลอกแล้ว';
+      setTimeout(()=>{el.classList.remove('ok');el.innerHTML=old;},1300); }
+    else { const o=el.textContent; el.textContent='✓ คัดลอกแล้ว';
+      setTimeout(()=>el.textContent=o,1100); }
+  });
+}
+document.addEventListener('click',e=>{
+  const c = e.target.closest('[data-cmd]');
+  if(c) copyCmd(c.dataset.cmd, c);
+});
+
+// ─── search filter ─────────────────────────────────────────────────────────────
+const search = document.getElementById('search');
+const ac = document.getElementById('ac');
+
+function runSearch(){
+  const q = search.value.trim().toLowerCase();
+  let any=false;
+  document.querySelectorAll('.sec').forEach(sec=>{
+    let shown=0;
+    sec.querySelectorAll('.card').forEach(card=>{
+      const hit = !q || card.dataset.search.includes(q);
+      card.style.display = hit?'':'none';
+      if(hit) shown++;
+    });
+    sec.style.display = shown?'':'none';
+    if(shown) any=true;
+  });
+  empty.style.display = any?'none':'block';
+}
+
+// ─── tab autocomplete ──────────────────────────────────────────────────────────
+const POOL = [];
+DATA.forEach(cat=>cat.cmds.forEach(c=>{
+  const term = c.s.startsWith('/') ? c.s : c.t;      // value placed in the box
+  POOL.push({ico:cat.icon, s:c.s, t:c.t, term, key:(c.s+' '+c.t).toLowerCase()});
+}));
+
+let acItems=[], acIdx=-1;
+function hl(text,q){
+  if(!q) return text;
+  const i = text.toLowerCase().indexOf(q);
+  if(i<0) return text;
+  return text.slice(0,i)+'<mark>'+text.slice(i,i+q.length)+'</mark>'+text.slice(i+q.length);
+}
+function renderAC(){
+  const q = search.value.trim().toLowerCase();
+  if(!q){ hideAC(); return; }
+  acItems = POOL.filter(p=>p.key.includes(q))
+    .sort((a,b)=>(b.key.startsWith(q)|0)-(a.key.startsWith(q)|0)
+              || (b.s.toLowerCase().startsWith(q)|0)-(a.s.toLowerCase().startsWith(q)|0))
+    .slice(0,7);
+  if(!acItems.length){ hideAC(); return; }
+  acIdx=0;
+  ac.innerHTML = acItems.map((p,i)=>
+    `<li data-i="${i}" class="${i===acIdx?'active':''}">
+       <span class="ico">${p.ico}</span>
+       <span class="s">${hl(p.s,q)}</span>
+       <span class="t">${hl(p.t,q)}</span>
+       <kbd>Tab ⇥</kbd>
+     </li>`).join('');
+  ac.classList.add('show');
+}
+function hideAC(){ ac.classList.remove('show'); ac.innerHTML=''; acItems=[]; acIdx=-1; }
+function setActive(i){
+  acIdx = (i+acItems.length)%acItems.length;
+  [...ac.children].forEach((li,n)=>li.classList.toggle('active',n===acIdx));
+}
+function accept(i){
+  const p = acItems[i] ?? acItems[acIdx];
+  if(!p) return false;
+  search.value = p.term;
+  hideAC(); runSearch();
+  return true;
+}
+
+search.addEventListener('input',()=>{ runSearch(); renderAC(); });
+search.addEventListener('keydown',e=>{
+  const open = ac.classList.contains('show');
+  if(e.key==='Tab'){
+    if(open || acItems.length){ e.preventDefault(); if(!acItems.length) renderAC(); accept(acIdx<0?0:acIdx); }
+  } else if(e.key==='ArrowDown'){ if(open){e.preventDefault(); setActive(acIdx+1);} }
+  else if(e.key==='ArrowUp'){ if(open){e.preventDefault(); setActive(acIdx-1);} }
+  else if(e.key==='Enter'){ if(open){e.preventDefault(); accept(acIdx);} }
+  else if(e.key==='Escape'){ hideAC(); }
+});
+ac.addEventListener('click',e=>{
+  const li = e.target.closest('li'); if(li) accept(+li.dataset.i);
+});
+document.addEventListener('click',e=>{ if(!e.target.closest('.search-wrap')) hideAC(); });
+
+// ─── scrollspy ─────────────────────────────────────────────────────────────────
+const links = [...sidebar.querySelectorAll('a')];
+const secs = [...document.querySelectorAll('.sec')];
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      links.forEach(l=>l.classList.toggle('active', l.dataset.target===en.target.id));
+    }
+  });
+},{rootMargin:'-30% 0px -60% 0px'});
+secs.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
