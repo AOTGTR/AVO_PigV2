@@ -186,7 +186,7 @@ const DATA = [
         note:"level เท่ากัน = <b>บวกเวลา</b> · level สูงกว่า = <b>แทรกก่อน</b> (ตัวเก่ารอ) · ฟีดแบ็กเป็นเสียง+actionbar ไม่มีข้อความแชต" },
       { s:"/avop carry add|remove|reset [n]", t:"พลังยกหมูถาวร (global)", d:"เพิ่ม/ลดจำนวนหมูที่ยกได้แบบ<b>ถาวร ไม่มีเวลาหมด</b> · ยกได้จริง = max(carry, strength) · ต่ำสุด 1 · ฟีดแบ็กเสียง + subtitle +N/−N ไม่มีข้อความแชต",
         p:[["add [n]","เพิ่มพลังยก +n (ไม่ใส่=1)"],["remove [n]","ลด −n (ไม่ต่ำกว่า 1)"],["reset","คืนค่าเริ่มต้น (1)"]], ex:["/avop carry add 1","/avop carry add 3","/avop carry remove 1","/avop carry reset"],
-        note:"อยู่ถาวรจนสั่ง remove/reset · ตอน strength ทำงาน (เช่น strength 10) ยังยกได้ 10 จน strength หมด แล้วค่อยกลับมาใช้ค่า carry · bar โชว์ '<b>ยก N</b>' หน้าสุดเสมอ (ถ้า =1 ไม่โชว์)" },
+        note:"อยู่ถาวร (รอด /a reload + restart) จนสั่ง remove/reset · ตอน strength ทำงาน (เช่น strength 10) ยังยกได้ 10 จน strength หมด แล้วกลับมาใช้ค่า carry · bar โชว์ '<b>+N</b>' (+ เขียว) หน้าสุดเสมอ (=1 ไม่โชว์)" },
       { s:"/avop fly [secs]", t:"ให้บินทุกคน", d:"เปิดบินให้ผู้เล่นทุกคน +secs",
         p:[["[secs]","วินาที (ไม่ใส่/0 = 10)"]], ex:["/avop fly 20"] },
       { s:"/avop down", t:"ปลดหมูที่ถืออยู่ลงพื้น", d:"วางหมู/สัตว์ที่ทุกคนถืออยู่ลงคอก กระจายไม่ทับกัน",
